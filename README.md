@@ -20,7 +20,3 @@ Czech is understood as a very hard to learn language, so the question "Why are y
 - [ ] Flashcards
 - [ ] Spaced-repetition system
 - [ ] Natural Processing Language
-
-### TODO
-- [ ] Dockerize
-- [ ] Publish
