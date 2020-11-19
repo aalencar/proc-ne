@@ -1,72 +1,75 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
+const cors = require('cors');
+
 
 const PORT = 4000;
 
 const schema = buildSchema(`
   type Query {
-    word(id: Int!): Word
-    words(tag: String): [Word]
+    flashcard(id: Int!): Flashcard
+    flashcards(tag: String): [Flashcard]
   },
-  type Word {
+  type Flashcard {
     id: String
-    original: String
-    translation: String
+    front: String
+    back: String
     tags: [String]
   }
   type Mutation {
-    addTagToWord(id: Int!, tag: String): Word
+    addTagToFlashcard(id: Int!, tag: String): Flashcard
   }
 `);
 
-const WORDS = [
+const FLASHCARDS = [
   {
     id: 1,
-    original: 'pes',
-    translation: 'dog',
+    front: 'dog',
+    back: 'pes',
     tags: ['common', 'noun', 'masculine']
   },
   {
     id: 2,
-    original: 'misto',
-    translation: 'place',
+    front: 'place',
+    back: 'misto',
     tags: ['noun', 'neutral']
   },
   {
     id: 3,
-    original: 'delat',
-    translation: 'to do',
+    front: 'to do',
+    back: 'delat',
     tags: ['verb', 'imperfective']
   }
 ];
 
-function getWords({tag}) {
-  return tag ? WORDS.filter(word => word.tags.includes(tag)) : WORDS;
+function getFlashcards({tag}) {
+  return tag ? FLASHCARDS.filter(flashcard => flashcard.tags.includes(tag)) : FLASHCARDS;
 }
 
-function getSingleWord({ id }) {
-  return WORDS.find(word => word.id === id);
+function getFlashcardById({ id }) {
+  return FLASHCARDS.find(flashcard => flashcard.id === id);
 }
 
-function addTagToWord({ id, tag }) {
-  const foundWord = WORDS.find(word => word.id === id);
-  if (foundWord && !foundWord.tags.includes(tag)) {
-    foundWord.tags = [
-      ...foundWord.tags,
+function addTagToFlashcard({ id, tag }) {
+  const foundCard = FLASHCARDS.find(flashcard => flashcard.id === id);
+  if (foundCard && !foundCard.tags.includes(tag)) {
+    foundCard.tags = [
+      ...foundCard.tags,
       tag,
     ];
   }
-  return foundWord;
+  return foundCard;
 }
 
 const root = {
-  word: getSingleWord,
-  words: getWords,
-  addTagToWord: addTagToWord,
+  flashcard: getFlashcardById,
+  flashcards: getFlashcards,
+  addTagToFlashcard: addTagToFlashcard,
 };
 
 const app = express();
+app.use(cors());
 app.use('/graphql', graphqlHTTP({
   schema,
   rootValue: root,
